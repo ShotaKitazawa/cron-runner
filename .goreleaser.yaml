@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+project_name: cron-runner
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: .
+    binary: cron-runner
+    ldflags:
+      - -s -w
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      #- windows
+    goarch:
+      - amd64
+      - arm64
+release:
+  prerelease: auto
+
+dockers:
+  - image_templates:
+      - "kanatakita/cron-runner:v{{ .Version }}-amd64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/shotakitazawa/cron-runner/main/README.md"
+      - '--label=io.artifacthub.package.maintainers=[{"name":"Shota Kitazawa","email":"skitazawa1121@gmail.com"}]'
+      - "--label=io.artifacthub.package.license=MIT"
+      - "--label=org.opencontainers.image.description=Run command periodically and Expose Prometheus metrics for execution results"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "kanatakita/cron-runner:v{{ .Version }}-arm64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/shotakitazawa/cron-runner/main/README.md"
+      - '--label=io.artifacthub.package.maintainers=[{"name":"Shota Kitazawa","email":"skitazawa1121@gmail.com"}]'
+      - "--label=io.artifacthub.package.license=MIT"
+      - "--label=org.opencontainers.image.description=Run command periodically and Expose Prometheus metrics for execution results"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+docker_manifests:
+  - name_template: "kanatakita/cron-runner:v{{ .Version }}"
+    image_templates:
+      - "kanatakita/cron-runner:v{{ .Version }}-amd64"
+      - "kanatakita/cron-runner:v{{ .Version }}-arm64"
